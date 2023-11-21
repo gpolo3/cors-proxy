@@ -19,12 +19,20 @@ app.all('*', function (req, res, next) {
         // CORS Preflight
         res.send();
     } else {
-        var targetURL = req.header('Target-URL');
-        if (!targetURL) {
+        const targetURL = req.headers['target-url']
+        if (!Boolean(targetURL)) {
             res.send(500, { error: 'There is no Target-Endpoint header in the request' });
             return;
         }
-        request({ url: targetURL + req.url, method: req.method, json: req.body, headers: {'Authorization': req.header('Authorization')} },
+        const headers = {}
+
+        headers['x-api-key'] = req.headers['x-api-key'];
+        
+        if(Boolean(req.headers['authorization'])) {
+            headers['authorization'] = req.headers['authorization']; 
+        }
+        
+        request({ url: targetURL + req.url, method: req.method, json: req.body, headers },
             function (error, response, body) {
                 if (error) {
                     console.error('error: ' + response.statusCode)
