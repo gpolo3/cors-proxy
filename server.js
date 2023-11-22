@@ -19,20 +19,12 @@ app.all('*', function (req, res, next) {
         // CORS Preflight
         res.send();
     } else {
-        const targetURL = req.headers['target-url']
-        if (!Boolean(targetURL)) {
+        var targetURL = req.header('Target-URL');
+        if (!targetURL) {
             res.send(500, { error: 'There is no Target-Endpoint header in the request' });
             return;
         }
-        const headers = {}
-
-        headers['x-api-key'] = req.headers['x-api-key'];
-        
-        if(Boolean(req.headers['authorization'])) {
-            headers['authorization'] = req.headers['authorization']; 
-        }
-        
-        request({ url: targetURL + req.url, method: req.method, json: req.body, headers },
+        request({ url: targetURL + req.url, method: req.method, json: req.body, headers: {'Authorization': req.header('Authorization')} },
             function (error, response, body) {
                 if (error) {
                     console.error('error: ' + response.statusCode)
@@ -42,7 +34,7 @@ app.all('*', function (req, res, next) {
     }
 });
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 3012);
 
 app.listen(app.get('port'), function () {
     console.log('Proxy server listening on port ' + app.get('port'));
